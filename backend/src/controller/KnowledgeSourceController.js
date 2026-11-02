@@ -62,14 +62,6 @@ class Controller {
 				await getUserQueue(user_id).add('rag-document-upload', source.get());
 			}
 
-			if (['png', 'jpg', 'jpeg', 'webp'].includes(extensionOf(file.originalname))) {
-				await getUserQueue(user_id).add('image-upload', source.get());
-			}
-
-			if (['mp4', 'mkv'].includes(extensionOf(file.originalname))) {
-				await getUserQueue(user_id).add('video-upload', source.get());
-			}
-
 
 			sources.push(source);
 		}

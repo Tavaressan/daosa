@@ -74,6 +74,26 @@ docker compose down && docker compose --env-file backend/.env up --build
 Para alinhar todos os conteiners. 
 > **Toda vez que você precisar rodar suas alterações no projeto você precisa rodar esse comando.**
 
+## Fluxo de desenvolvimento
+
+Para contribuir com o projeto:
+
+1. Crie uma branch a partir de `main`: `feature/nome-da-feature` (ou `fix/`, `docs/`, `refactor/`)
+2. Faça commits seguindo o padrão Angular:
+   - `feat:` — nova funcionalidade
+   - `fix:` — correção de bug
+   - `docs:` — documentação
+   - `refactor:` — refatoração sem mudança de comportamento
+   - `perf:` — melhoria de performance
+   - `test:` — testes
+   - `chore:` — tarefas de manutenção/build (ex.: atualizar dependências, configurar CI/CD, ajustar `.gitignore`, limpeza de arquivos)
+3. Abra um Pull Request (PR) para `main`
+4. Aguarde revisão, aprovação e merge
+
+Exemplo de mensagem: `feat: adicionar endpoint para listar agentes`
+
+> **Sobre `chore:`:** usado quando o commit não altera código de negócio — apenas manutenção, build, dependências (`package.json`), configuração de ambiente ou limpeza de arquivos. Ele não aparece nas notas de release porque não gera impacto direto ao usuário final.
+
 ## Arquitetura
 
 * **Frontend:** Next.js — painel administrativo para configurar agentes, fontes de conhecimento e integrações da conta.
@@ -123,20 +143,62 @@ Para alinhar todos os conteiners.
 
 # Diagrama de Arquitetura
 
+### Local:
 ```mermaid
 flowchart TB
     subgraph User
         U[Usuário / Navegador]
     end
 
-    subgraph DockerCompose["Ambiente (AWS Cloud)"]
+    subgraph DockerCompose["Ambiente local Docker Compose"]
         F[Frontend — Next.js]<-->|HTTP/API|B[Backend — API REST]
-        B-->|SQL|DB[(MySQL — daosa)]
+        <-->|Redis|Cache[(Redis — daosa)]<-->|SQL|DB[(MySQL — daosa)]
         B-->|Vetorial / Embeddings|Q[(Qdrant — collection daosa)]
-        B-->|OAuth / Picker|G[Google Drive / OAuth]
+        B <-->|Token/OAuth| G[Google Drive]
     end
 
     U -->|Acesso web / WhatsApp / Telegram| F
     F --> B
-    G -->|Tokens / Arquivos| B
+```
+
+### Produção:
+
+```mermaid
+flowchart TB
+    subgraph USER["Usuário"]
+        U["Usuário / Navegador"]
+    end
+
+    subgraph AWS["AWS — Infraestrutura de custo mínimo"]
+        R["Route 53 / DNS"]
+        CF["CloudFront"]
+
+        EC2BE["EC2 t3.small<br/>Docker Compose<br/>Backend / Engine / API"]
+
+        CACHE[("Amazon ElastiCache<br/>Redis (utilizando o SDK ioredis)")]
+
+        RDS[("RDS MySQL t3.micro<br/>Database: daosa")]
+
+        EC2Q["EC2 t3.medium / large<br/>Qdrant (container)<br/>EBS grande — vetores / chunks"]
+
+        S3KB[("S3 — Logs / Mídia ")]
+
+        BED["Amazon Bedrock<br/>ou API externa<br/>LLM + Embeddings"]
+
+        G["Google Drive<br/>OAuth 2.0"]
+    end
+
+   
+
+    U -->|HTTPS| R
+    R --> CF
+    CF --> EC2BE
+
+    EC2BE --> CACHE
+    CACHE --> RDS
+
+    EC2BE -->|Vetorial / RAG| EC2Q
+    EC2BE -->|LLM / Embeddings| BED
+    EC2BE -->|Upload| S3KB
+    EC2BE -->|OAuth / Tokens| G
 ```
