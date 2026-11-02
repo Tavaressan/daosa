@@ -78,7 +78,7 @@ Para alinhar todos os conteiners.
 
 Para contribuir com o projeto:
 
-1. Crie uma branch a partir de `main`: `feature/nome-da-feature` (ou `fix/`, `docs/`, `refactor/`)
+1. Crie uma branch a partir de `main`: `username:feature/nome-da-feature` (ou `fix/`, `docs/`, `refactor/`, etc...)
 2. Faça commits seguindo o padrão Angular:
    - `feat:` — nova funcionalidade
    - `fix:` — correção de bug
