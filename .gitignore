@@ -4,3 +4,4 @@ docker_volumes/ollama/*
 docker_volumes/redis/*
 docs
 compose.yml
+.claude/vetor/status/

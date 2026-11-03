@@ -1,0 +1,6 @@
+{
+  "maxConcurrentWorkers": 5,
+  "runtime": "node",
+  "packageManager": "npm",
+  "testCommand": "(cd backend && find . -name '*.js' -not -path './node_modules/*' -print0 | xargs -0 -n1 node --check) && (cd frontend && npx --no-install tsc --noEmit)"
+}
