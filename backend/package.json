@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon ./index.js",
-    "test": "echo 'testing'",
+    "pretest": "find . -name '*.js' -not -path './node_modules/*' -print0 | xargs -0 -n1 node --check",
+    "test": "node --test test/*.test.js",
     "corenode": "node ./corenode.js"
   },
   "repository": {
